@@ -18,13 +18,17 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// HttpClient para o EstoqueService
+// HttpClient para EstoqueService
 builder.Services.AddHttpClient("estoque", c =>
 {
-    c.BaseAddress = new Uri("http://localhost:5229/");
+    c.BaseAddress = new Uri("http://localhost:5229/"); // porta do EstoqueService
 })
-.AddPolicyHandler(HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, tentativa => TimeSpan.FromMilliseconds(200 * (tentativa + 1))))
-.AddPolicyHandler(HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .WaitAndRetryAsync(3, tentativa => TimeSpan.FromMilliseconds(200 * (tentativa + 1))))
+.AddPolicyHandler(HttpPolicyExtensions
+    .HandleTransientHttpError()
+    .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -34,7 +38,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// ✅ aplicar cors antes dos endpoints
+// ✅ aplicar CORS antes dos endpoints
 app.UseCors("AllowAll");
 
 app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
@@ -44,6 +48,12 @@ app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
 
     var criada = repo.Criar(nota);
     return Results.Created($"/notas/{criada.Numero}", criada);
+});
+
+// ✅ Novo endpoint LISTAR notas
+app.MapGet("/notas", (NotasRepo repo) =>
+{
+    return Results.Ok(repo.Listar());
 });
 
 app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http, NotasRepo repo, IHttpClientFactory httpClientFactory) =>

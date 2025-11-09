@@ -14,6 +14,7 @@ public class NotasRepo
         lock (_lock)
         {
             nota.Numero = ++_sequencia;
+            nota.Status = StatusNota.Aberta;  // ✅ garante status inicial
             _notas[nota.Numero] = nota;
             return nota;
         }
@@ -21,6 +22,14 @@ public class NotasRepo
 
     public NotaFiscal? Obter(int numero) =>
         _notas.TryGetValue(numero, out var n) ? n : null;
+
+    public List<NotaFiscal> Listar()
+    {
+        lock (_lock)
+        {
+            return _notas.Values.ToList();
+        }
+    }
 
     public void Fechar(NotaFiscal nota) =>
         nota.Status = StatusNota.Fechada;

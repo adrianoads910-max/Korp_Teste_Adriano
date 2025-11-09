@@ -39,24 +39,26 @@ export class CadastroNotaComponent {
   }
 
   salvar(): void {
-    if (this.itens.length === 0) {
-      alert("Adicione pelo menos 1 item!");
-      return;
-    }
-
-    const novaNota: NotaFiscal = {
-      status: 'Aberta',
-      itens: this.itens
-    };
-
-    this.notasService.criar(novaNota).subscribe(
-      (resp: NotaFiscal): void => {
-        alert(`✅ Nota criada! Número: ${resp.numero}`);
-        this.itens = []; // limpa a lista
-      },
-      (erro: any): void => {
-        alert("❌ Erro: " + (erro?.error?.erro ?? erro.message));
-      }
-    );
+  if (this.itens.length === 0) {
+    alert("Adicione pelo menos 1 item!");
+    return;
   }
+
+  const novaNota = {
+    itens: this.itens   // ✅ NÃO envie status, backend define como Aberta
+  };
+
+  this.notasService.criar(novaNota).subscribe({
+    next: (resp: NotaFiscal) => {
+      alert(`✅ Nota criada! Número: ${resp.numero}`);
+      this.itens = [];
+      this.codigoProduto = '';
+      this.quantidade = 1;
+    },
+    error: (erro) => {
+      console.error("Erro ao criar nota:", erro);
+      alert("❌ Erro ao criar nota: " + (erro?.error?.erro ?? erro.message));
+    }
+  });
+}
 }

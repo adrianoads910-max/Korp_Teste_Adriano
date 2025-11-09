@@ -1,0 +1,55 @@
+<div class="flex h-screen dark:bg-gray-900">
+
+  <!-- MENU LATERAL -->
+  <aside class="bg-gray-100 dark:bg-gray-800 w-64 p-4 flex flex-col gap-6 border-r border-gray-300 dark:border-gray-700">
+
+    <h1 class="text-xl font-bold dark:text-white flex items-center gap-2">
+      <ng-icon name="heroCube" class="h-6 w-6"></ng-icon>
+      Sistema de Gestão
+    </h1>
+
+    <!-- Navegação -->
+    <nav class="flex flex-col gap-2">
+
+      <a routerLink="/produtos" routerLinkActive="active"
+         class="menu-btn flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+        <ng-icon name="heroCube" class="h-5 w-5"></ng-icon>
+        Produtos
+      </a>
+
+      <a routerLink="/produtos/cadastrar" routerLinkActive="active"
+         class="menu-btn flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+        <ng-icon name="heroCube" class="h-5 w-5"></ng-icon>
+        Novo Produto
+      </a>
+
+      <a routerLink="/notas" routerLinkActive="active"
+         class="menu-btn flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+        <ng-icon name="heroClipboardDocument" class="h-5 w-5"></ng-icon>
+        Notas
+      </a>
+
+      <a routerLink="/notas/cadastrar" routerLinkActive="active"
+         class="menu-btn flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+        <ng-icon name="heroClipboardDocument" class="h-5 w-5"></ng-icon>
+        Nova Nota
+      </a>
+    </nav>
+
+    <!-- Toggle tema -->
+    <div class="mt-auto">
+      <button (click)="toggleDarkMode()"
+              class="btn-dark w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-50 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-300 dark:hover:bg-gray-600">
+        <ng-icon name="heroMoon" *ngIf="!dark" class="h-5 w-5"></ng-icon>
+        <ng-icon name="heroSun" *ngIf="dark" class="h-5 w-5"></ng-icon>
+        Alternar Tema
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTEÚDO PRINCIPAL -->
+  <main class="flex-1 p-6 overflow-auto dark:text-white bg-gray-50 dark:bg-gray-900">
+    <router-outlet />
+  </main>
+
+</div>

@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "89S3SeUJFVo7h7AmvZqUIHNlGBZrLElfnQH3Y2D9xiA=",
+  "Source": "EstoqueService",
+  "BasePath": "_content/EstoqueService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

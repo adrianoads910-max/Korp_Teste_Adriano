@@ -90,4 +90,18 @@ app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http,
     return Results.Ok(new { mensagem = "Nota impressa e fechada", numero, status = nota.Status.ToString() });
 });
 
+app.MapPost("/notas/{numero:int}/cancelar", (int numero, NotasRepo repo) =>
+{
+    var nota = repo.Obter(numero);
+    if (nota is null)
+        return Results.NotFound(new { erro = "Nota não encontrada" });
+
+    if (nota.Status == StatusNota.Fechada)
+        return Results.BadRequest(new { erro = "Nota já está fechada" });
+
+    repo.Cancelar(nota);
+    return Results.Ok(new { mensagem = "Nota cancelada com sucesso", numero, status = nota.Status.ToString() });
+});
+
+
 app.Run();

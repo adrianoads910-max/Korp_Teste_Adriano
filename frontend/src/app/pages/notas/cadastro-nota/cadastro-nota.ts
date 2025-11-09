@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NotasService } from '../../../services/notas';
-import { NotaFiscal, NotaItem } from '../../../models/nota-fiscal';
+import { NotaFiscal, NotaItem, StatusNota } from '../../../models/nota-fiscal';
 
 @Component({
   selector: 'app-cadastro-nota',
@@ -15,7 +15,7 @@ export class CadastroNotaComponent {
 
   codigoProduto = '';
   quantidade = 1;
-  itens: NotaItem[] = [];   // ✅ agora existe
+  itens: NotaItem[] = [];
 
   constructor(private notasService: NotasService) {}
 
@@ -39,26 +39,27 @@ export class CadastroNotaComponent {
   }
 
   salvar(): void {
-  if (this.itens.length === 0) {
-    alert("Adicione pelo menos 1 item!");
-    return;
-  }
-
-  const novaNota = {
-    itens: this.itens   // ✅ NÃO envie status, backend define como Aberta
-  };
-
-  this.notasService.criar(novaNota).subscribe({
-    next: (resp: NotaFiscal) => {
-      alert(`✅ Nota criada! Número: ${resp.numero}`);
-      this.itens = [];
-      this.codigoProduto = '';
-      this.quantidade = 1;
-    },
-    error: (erro) => {
-      console.error("Erro ao criar nota:", erro);
-      alert("❌ Erro ao criar nota: " + (erro?.error?.erro ?? erro.message));
+    if (this.itens.length === 0) {
+      alert("Adicione pelo menos 1 item!");
+      return;
     }
-  });
-}
+
+    const novaNota: NotaFiscal = {
+      status: StatusNota.Aberta, 
+      itens: this.itens
+    };
+
+    this.notasService.criar(novaNota).subscribe({
+      next: (resp: NotaFiscal) => {
+        alert(`✅ Nota criada! Número: ${resp.numero}`);
+        this.itens = [];
+        this.codigoProduto = '';
+        this.quantidade = 1;
+      },
+      error: (erro) => {
+        console.error("Erro ao criar nota:", erro);
+        alert("❌ Erro ao criar nota: " + (erro?.error?.erro ?? erro.message));
+      }
+    });
+  }
 }

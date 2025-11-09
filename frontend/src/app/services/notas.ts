@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { NotaFiscal } from '../models/nota-fiscal'; // ✅ usando o modelo correto
+import { NotaFiscal } from '../models/nota-fiscal';
 
 @Injectable({ providedIn: 'root' })
 export class NotasService {
 
-  private apiUrl = 'http://localhost:5208/notas';
+  private apiUrl = 'http://localhost:5208/notas'; // ✅ seu backend
 
   constructor(private http: HttpClient) {}
 
@@ -20,5 +20,9 @@ export class NotasService {
 
   imprimir(numero: number): Observable<NotaFiscal> {
     return this.http.post<NotaFiscal>(`${this.apiUrl}/${numero}/imprimir`, {});
+  }
+
+  cancelar(numero: number): Observable<NotaFiscal> {
+    return this.http.post<NotaFiscal>(`${this.apiUrl}/${numero}/cancelar`, {}); 
   }
 }

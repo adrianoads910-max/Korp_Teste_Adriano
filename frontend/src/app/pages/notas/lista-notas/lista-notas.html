@@ -1,42 +1,83 @@
-<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+<div class="max-w-5xl mx-auto p-6">
 
-  <h2 class="text-2xl font-bold mb-6 dark:text-white">Notas Fiscais</h2>
+  <h2 class="text-3xl font-bold mb-6 dark:text-white">Notas Fiscais</h2>
 
-  <div class="overflow-x-auto shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
-    <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
+  <table class="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
 
-      <thead class="bg-gray-100 dark:bg-gray-700">
-        <tr>
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider dark:text-gray-300">
-            Número
-          </th>
-          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider dark:text-gray-300">
-            Status
-          </th>
-        </tr>
-      </thead>
+    <thead class="bg-gray-200 dark:bg-gray-700 text-left text-gray-700 dark:text-gray-200">
+      <tr>
+        <th class="px-4 py-3">Número</th>
+        <th class="px-4 py-3">Status</th>
+        <th class="px-4 py-3">Itens</th>
+        <th class="px-4 py-3 text-center">Ações</th>
+      </tr>
+    </thead>
 
-      <tbody class="divide-y divide-gray-300 dark:divide-gray-700">
+    <tbody>
+      <tr *ngFor="let n of notas"
+          class="border-t dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition">
 
-        <tr *ngFor="let n of notas" class="hover:bg-gray-50 dark:hover:bg-gray-900">
+        <!-- Número -->
+        <td class="px-4 py-3 font-semibold dark:text-white">
+          {{ n.numero }}
+        </td>
 
-          <td class="px-6 py-4 whitespace-nowrap text-gray-800 dark:text-gray-100">
-            {{ n.numero }}
-          </td>
+        <!-- STATUS: Badge com cor por enum -->
+        <td class="px-4 py-3">
+          <span
+            class="px-3 py-1 rounded-full text-sm font-semibold"
+            [ngClass]="{
+              'bg-green-100 text-green-700': n.status === StatusNota.Fechada,
+              'bg-yellow-100 text-yellow-700': n.status === StatusNota.Aberta,
+              'bg-red-100 text-red-700': n.status === StatusNota.Cancelado
+            }"
+          >
+            ● {{
+              n.status === StatusNota.Aberta
+                ? 'Aberta'
+                : n.status === StatusNota.Fechada
+                  ? 'Fechada'
+                  : 'Cancelada'
+            }}
+          </span>
+        </td>
 
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-3 py-1 rounded-full text-sm font-medium"
-              [ngClass]="{
-                'bg-yellow-200 text-yellow-800': n.status === 'Aberta',
-                'bg-green-200 text-green-800': n.status === 'Fechada'
-              }">
-              {{ n.status }}
-            </span>
-          </td>
+        <!-- ITENS -->
+        <td class="px-4 py-3 dark:text-gray-200">
+          <ul class="list-disc ml-5 space-y-1">
+            <li *ngFor="let item of n.itens">
+              {{ item.codigoProduto }} (Qtd: {{ item.quantidade }})
+            </li>
+          </ul>
+        </td>
 
-        </tr>
+        <!-- AÇÕES -->
+        <td class="px-4 py-3 flex items-center gap-3 justify-center">
 
-      </tbody>
-    </table>
-  </div>
+          <!-- IMPRIMIR -->
+          <button
+            class="px-3 py-1 text-sm font-semibold rounded-lg bg-blue-600 text-white
+                   hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            (click)="imprimir(n.numero!)"
+            [disabled]="n.status !== StatusNota.Aberta"
+          >
+            Imprimir
+          </button>
+
+          <!-- CANCELAR -->
+          <button
+            class="px-3 py-1 text-sm font-semibold rounded-lg bg-red-600 text-white
+                   hover:bg-red-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
+            (click)="cancelar(n.numero!)"
+            [disabled]="n.status !== StatusNota.Aberta"
+          >
+            Cancelar
+          </button>
+
+        </td>
+      </tr>
+    </tbody>
+
+  </table>
+
 </div>

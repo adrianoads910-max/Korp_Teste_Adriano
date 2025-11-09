@@ -34,6 +34,10 @@ public class NotasRepo
     public void Fechar(NotaFiscal nota) =>
         nota.Status = StatusNota.Fechada;
 
+    public void Cancelar(NotaFiscal nota) =>
+    nota.Status = StatusNota.Cancelada;
+    
+
     public bool JaProcessado(string chave) =>
         _idempotencia.Contains(chave);
 

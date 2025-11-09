@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace FaturamentoService.Models;
 
-public enum StatusNota { Aberta = 0, Fechada = 1 }
+public enum StatusNota { Aberta = 0, Fechada = 1, Cancelada = 2 }
 
 public class NotaItem
 {
@@ -22,3 +22,5 @@ public class NotaFiscal
 
     public List<NotaItem> Itens { get; set; } = new();
 }
+
+

@@ -6,25 +6,25 @@ using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Registro do repositório em memória (notas)
+// Banco em memória
 builder.Services.AddSingleton<NotasRepo>();
 
-// Configuração do HttpClient apontando para o EstoqueService
+// ✅ Habilitar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+// HttpClient para o EstoqueService
 builder.Services.AddHttpClient("estoque", c =>
 {
-    // colocar a porta do estoque
     c.BaseAddress = new Uri("http://localhost:5229/");
 })
-.AddPolicyHandler(
-    HttpPolicyExtensions
-        .HandleTransientHttpError()
-        .WaitAndRetryAsync(3, tentativa => TimeSpan.FromMilliseconds(200 * (tentativa + 1)))
-)
-.AddPolicyHandler(
-    HttpPolicyExtensions
-        .HandleTransientHttpError()
-        .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30))
-);
+.AddPolicyHandler(HttpPolicyExtensions.HandleTransientHttpError().WaitAndRetryAsync(3, tentativa => TimeSpan.FromMilliseconds(200 * (tentativa + 1))))
+.AddPolicyHandler(HttpPolicyExtensions.HandleTransientHttpError().CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -33,6 +33,9 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
+
+// ✅ aplicar cors antes dos endpoints
+app.UseCors("AllowAll");
 
 app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
 {
@@ -65,9 +68,8 @@ app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http,
         if (response.StatusCode == HttpStatusCode.Conflict)
             return Results.Conflict(new { erro = $"Sem saldo no produto {item.CodigoProduto}" });
 
-       if (!response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
             return Results.Json(new { erro = "Falha ao comunicar com o serviço de estoque" }, statusCode: 503);
-
     }
 
     repo.Fechar(nota);

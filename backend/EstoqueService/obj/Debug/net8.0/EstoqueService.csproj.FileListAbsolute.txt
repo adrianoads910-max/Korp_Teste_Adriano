@@ -157,3 +157,4 @@ C:\Users\adria\Korp_Teste_Adriano\backend\EstoqueService\obj\Debug\net8.0\refint
 C:\Users\adria\Korp_Teste_Adriano\backend\EstoqueService\obj\Debug\net8.0\EstoqueService.pdb
 C:\Users\adria\Korp_Teste_Adriano\backend\EstoqueService\obj\Debug\net8.0\EstoqueService.genruntimeconfig.cache
 C:\Users\adria\Korp_Teste_Adriano\backend\EstoqueService\obj\Debug\net8.0\ref\EstoqueService.dll
+C:\Users\adria\Korp_Teste_Adriano\backend\EstoqueService\obj\Debug\net8.0\EstoqueService.sourcelink.json

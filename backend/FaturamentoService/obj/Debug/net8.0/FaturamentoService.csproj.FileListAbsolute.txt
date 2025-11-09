@@ -49,3 +49,4 @@ C:\Users\adria\Korp_Teste_Adriano\backend\FaturamentoService\obj\Debug\net8.0\re
 C:\Users\adria\Korp_Teste_Adriano\backend\FaturamentoService\obj\Debug\net8.0\FaturamentoService.pdb
 C:\Users\adria\Korp_Teste_Adriano\backend\FaturamentoService\obj\Debug\net8.0\FaturamentoService.genruntimeconfig.cache
 C:\Users\adria\Korp_Teste_Adriano\backend\FaturamentoService\obj\Debug\net8.0\ref\FaturamentoService.dll
+C:\Users\adria\Korp_Teste_Adriano\backend\FaturamentoService\obj\Debug\net8.0\FaturamentoService.sourcelink.json

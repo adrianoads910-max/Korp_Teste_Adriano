@@ -1,32 +1,40 @@
 using EstoqueService.Models;
+using System.Collections.Generic;
 
-namespace EstoqueService.Data;
-
-public class ProdutoRepo
+namespace EstoqueService.Data
 {
-    private readonly Dictionary<string, Produto> _produtos = new();
-
-    public Produto Criar(Produto p)
+    public class ProdutoRepo
     {
-        _produtos[p.Codigo] = p;
-        return p;
-    }
+        private readonly Dictionary<string, Produto> _produtos = new();
 
-    public Produto? Obter(string codigo)
-    {
-        _produtos.TryGetValue(codigo, out var produto);
-        return produto;
-    }
+        public void Criar(Produto produto)
+        {
+            _produtos[produto.Codigo] = produto;
+        }
 
-    public bool Reservar(string codigo, int quantidade)
-    {
-        if (!_produtos.TryGetValue(codigo, out var produto))
-            return false;
+        public Produto? Obter(string codigo)
+        {
+            return _produtos.ContainsKey(codigo) ? _produtos[codigo] : null;
+        }
 
-        if (produto.Saldo < quantidade)
-            return false;
+        public bool Reservar(string codigo, int quantidade)
+        {
+            if (!_produtos.ContainsKey(codigo))
+                return false;
 
-        produto.Saldo -= quantidade;
-        return true;
+            var produto = _produtos[codigo];
+
+            if (produto.Saldo < quantidade)
+                return false;
+
+            produto.Saldo -= quantidade;
+            return true;
+        }
+
+        // ✅ MÉTODO QUE ESTAVA FALTANDO
+        public List<Produto> Listar()
+        {
+            return _produtos.Values.ToList();
+        }
     }
 }

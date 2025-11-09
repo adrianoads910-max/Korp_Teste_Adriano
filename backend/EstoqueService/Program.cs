@@ -3,6 +3,16 @@ using EstoqueService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ✅ Habilitar CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+// Banco em memória
 builder.Services.AddSingleton<ProdutoRepo>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -13,10 +23,19 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// ✅ aplicar cors antes dos endpoints
+app.UseCors("AllowAll");
+
 app.MapPost("/produtos", (ProdutoRepo repo, Produto produto) =>
 {
     repo.Criar(produto);
     return Results.Created($"/produtos/{produto.Codigo}", produto);
+});
+
+app.MapGet("/produtos", (ProdutoRepo repo) =>
+{
+    var lista = repo.Listar(); 
+    return Results.Ok(lista);
 });
 
 app.MapGet("/produtos/{codigo}", (ProdutoRepo repo, string codigo) =>

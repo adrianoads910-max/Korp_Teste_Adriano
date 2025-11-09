@@ -1,25 +1,8 @@
-@use '@angular/material' as mat; // ⬅️ DEVE SER A PRIMEIRA LINHA DO ARQUIVO
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-// Theme global Angular Material com M3
-html {
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+/* Seu CSS adicional pode ficar aqui */
+html, body {
+    height: 100%;
 }
-
-body {
-  color-scheme: light;
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-  margin: 0;
-}
-
-/* Seu reset global */
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

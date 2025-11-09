@@ -1,26 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+
 import { ProdutosService, Produto } from '../../../services/produtos';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-lista-produtos',
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatTableModule
-  ],
   templateUrl: './lista-produtos.html',
-  styleUrls: ['./lista-produtos.scss']
+  styleUrls: ['./lista-produtos.scss'],
+  imports: [ CommonModule ]
 })
 export class ListaProdutosComponent implements OnInit {
 
   produtos: Produto[] = [];
-  colunas = ['codigo', 'descricao', 'saldo'];
 
   constructor(private produtosService: ProdutosService) {}
 
-  ngOnInit(): void {               // ✅ Agora o OnInit foi implementado
+  ngOnInit(): void {
     this.produtosService.listar().subscribe((result) => {
       this.produtos = result;
     });

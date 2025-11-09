@@ -1,19 +1,42 @@
-<mat-card>
-  <h2>Notas Fiscais</h2>
+<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
 
-  <table mat-table [dataSource]="notas" class="mat-elevation-z8">
+  <h2 class="text-2xl font-bold mb-6 dark:text-white">Notas Fiscais</h2>
 
-    <ng-container matColumnDef="numero">
-      <th mat-header-cell *matHeaderCellDef>Número</th>
-      <td mat-cell *matCellDef="let n">{{ n.numero }}</td>
-    </ng-container>
+  <div class="overflow-x-auto shadow-lg rounded-lg border border-gray-200 dark:border-gray-700">
+    <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
 
-    <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let n">{{ n.status }}</td>
-    </ng-container>
+      <thead class="bg-gray-100 dark:bg-gray-700">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider dark:text-gray-300">
+            Número
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider dark:text-gray-300">
+            Status
+          </th>
+        </tr>
+      </thead>
 
-    <tr mat-header-row *matHeaderRowDef="colunas"></tr>
-    <tr mat-row *matRowDef="let row; columns: colunas;"></tr>
-  </table>
-</mat-card>
+      <tbody class="divide-y divide-gray-300 dark:divide-gray-700">
+
+        <tr *ngFor="let n of notas" class="hover:bg-gray-50 dark:hover:bg-gray-900">
+
+          <td class="px-6 py-4 whitespace-nowrap text-gray-800 dark:text-gray-100">
+            {{ n.numero }}
+          </td>
+
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="px-3 py-1 rounded-full text-sm font-medium"
+              [ngClass]="{
+                'bg-yellow-200 text-yellow-800': n.status === 'Aberta',
+                'bg-green-200 text-green-800': n.status === 'Fechada'
+              }">
+              {{ n.status }}
+            </span>
+          </td>
+
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,22 +1,50 @@
-<mat-card>
-  <h2>Cadastrar Produto</h2>
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+  <h2 class="text-2xl font-bold mb-6 dark:text-white">Cadastrar Produto</h2>
 
-  <form (ngSubmit)="salvar()">
-    <mat-form-field>
-      <mat-label>Código</mat-label>
-      <input matInput [(ngModel)]="produto.codigo" name="codigo" required>
-    </mat-form-field>
+  <form (ngSubmit)="salvar()" class="flex flex-col gap-4">
 
-    <mat-form-field>
-      <mat-label>Descrição</mat-label>
-      <input matInput [(ngModel)]="produto.descricao" name="descricao" required>
-    </mat-form-field>
+    <!-- Código -->
+    <div class="flex flex-col gap-1">
+      <label class="text-gray-700 dark:text-gray-300 font-medium">Código</label>
+      <input
+        type="text"
+        [(ngModel)]="produto.codigo"
+        name="codigo"
+        required
+        class="border rounded-md px-3 py-2 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
 
-    <mat-form-field>
-      <mat-label>Saldo</mat-label>
-      <input matInput type="number" [(ngModel)]="produto.saldo" name="saldo" required>
-    </mat-form-field>
+    <!-- Descrição -->
+    <div class="flex flex-col gap-1">
+      <label class="text-gray-700 dark:text-gray-300 font-medium">Descrição</label>
+      <input
+        type="text"
+        [(ngModel)]="produto.descricao"
+        name="descricao"
+        required
+        class="border rounded-md px-3 py-2 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
 
-    <button mat-raised-button color="primary">Salvar</button>
+    <!-- Saldo -->
+    <div class="flex flex-col gap-1">
+      <label class="text-gray-700 dark:text-gray-300 font-medium">Saldo</label>
+      <input
+        type="number"
+        [(ngModel)]="produto.saldo"
+        name="saldo"
+        required
+        class="border rounded-md px-3 py-2 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <button
+      type="submit"
+      class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md transition-colors"
+    >
+      Salvar
+    </button>
+
   </form>
-</mat-card>
+</div>

@@ -1,34 +1,62 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
 import { NotasService } from '../../../services/notas';
+import { NotaFiscal, NotaItem } from '../../../models/nota-fiscal';
 
 @Component({
   selector: 'app-cadastro-nota',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatCardModule,
-    MatInputModule,
-    MatButtonModule
-  ],
+  imports: [FormsModule, CommonModule],
   templateUrl: './cadastro-nota.html',
   styleUrls: ['./cadastro-nota.scss']
 })
 export class CadastroNotaComponent {
 
   codigoProduto = '';
-  quantidade = 0;
+  quantidade = 1;
+  itens: NotaItem[] = [];   // ✅ agora existe
 
   constructor(private notasService: NotasService) {}
 
-  salvar() {
-    this.notasService.criar({
-      itens: [{ codigoProduto: this.codigoProduto, quantidade: this.quantidade }]
-    }).subscribe(resp => {
-      alert("Nota criada! Número: " + resp.numero);
+  adicionarItem(): void {
+    if (!this.codigoProduto || this.quantidade <= 0) {
+      alert("Preencha código e quantidade.");
+      return;
+    }
+
+    this.itens.push({
+      codigoProduto: this.codigoProduto,
+      quantidade: this.quantidade
     });
+
+    this.codigoProduto = '';
+    this.quantidade = 1;
+  }
+
+  removerItem(index: number): void {
+    this.itens.splice(index, 1);
+  }
+
+  salvar(): void {
+    if (this.itens.length === 0) {
+      alert("Adicione pelo menos 1 item!");
+      return;
+    }
+
+    const novaNota: NotaFiscal = {
+      status: 'Aberta',
+      itens: this.itens
+    };
+
+    this.notasService.criar(novaNota).subscribe(
+      (resp: NotaFiscal): void => {
+        alert(`✅ Nota criada! Número: ${resp.numero}`);
+        this.itens = []; // limpa a lista
+      },
+      (erro: any): void => {
+        alert("❌ Erro: " + (erro?.error?.erro ?? erro.message));
+      }
+    );
   }
 }

@@ -11,10 +11,15 @@
     <!-- Navegação -->
     <nav class="flex flex-col gap-2">
 
-      <a routerLink="/produtos" routerLinkActive="active"
+      <a class="text-xl font-bold dark:text-white flex items-center gap-2">
+        <ng-icon name="heroCube" class="h-6 w-6"></ng-icon>
+        Produtos
+      </a>
+
+      <a routerLink="/produtos/listar" routerLinkActive="active"
          class="menu-btn flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
         <ng-icon name="heroCube" class="h-5 w-5"></ng-icon>
-        Produtos
+        Lista de Produtos
       </a>
 
       <a routerLink="/produtos/cadastrar" routerLinkActive="active"
@@ -23,10 +28,15 @@
         Novo Produto
       </a>
 
-      <a routerLink="/notas" routerLinkActive="active"
+      <a class="text-xl font-bold dark:text-white flex items-center gap-2">
+        <ng-icon name="heroClipboardDocument" class="h-6 w-6"></ng-icon>
+        Notas
+      </a>
+
+      <a routerLink="/notas/listar" routerLinkActive="active"
          class="menu-btn flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
         <ng-icon name="heroClipboardDocument" class="h-5 w-5"></ng-icon>
-        Notas
+        Lista de Notas
       </a>
 
       <a routerLink="/notas/cadastrar" routerLinkActive="active"

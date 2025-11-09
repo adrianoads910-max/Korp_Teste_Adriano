@@ -1,27 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { NotasService, NotaFiscal } from '../../../services/notas';
+import { CommonModule } from '@angular/common';
+import { NotasService } from '../../../services/notas';
+import { NotaFiscal } from '../../../models/nota-fiscal';
 
 @Component({
   selector: 'app-lista-notas',
   standalone: true,
-  imports: [
-    MatCardModule,
-    MatTableModule
-  ],
+  imports: [CommonModule], // ✅ necessário para ngFor
   templateUrl: './lista-notas.html',
   styleUrls: ['./lista-notas.scss']
 })
 export class ListaNotasComponent implements OnInit {
 
   notas: NotaFiscal[] = [];
-  colunas = ['numero', 'status'];
 
   constructor(private notasService: NotasService) {}
 
   ngOnInit(): void {
-    this.notasService.listar().subscribe(data => {
+    this.notasService.listar().subscribe((data: NotaFiscal[]) => {
       this.notas = data;
     });
   }

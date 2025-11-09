@@ -1,17 +1,68 @@
-<mat-card>
-  <h2>Nova Nota</h2>
+<div class="max-w-xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
 
-  <form (ngSubmit)="salvar()">
-    <mat-form-field>
-      <mat-label>Código do Produto</mat-label>
-      <input matInput [(ngModel)]="codigoProduto" name="codigoProduto" required>
-    </mat-form-field>
+  <h2 class="text-2xl font-bold mb-6 dark:text-white">Nova Nota Fiscal</h2>
 
-    <mat-form-field>
-      <mat-label>Quantidade</mat-label>
-      <input type="number" matInput [(ngModel)]="quantidade" name="quantidade" required>
-    </mat-form-field>
+  <!-- FORM DE ADIÇÃO DE ITENS -->
+  <div class="flex flex-col gap-4">
 
-    <button mat-raised-button color="primary">Criar Nota</button>
-  </form>
-</mat-card>
+    <div class="flex flex-col gap-1">
+      <label class="text-gray-700 dark:text-gray-300 font-medium">Código do Produto</label>
+      <input
+        type="text"
+        [(ngModel)]="codigoProduto"
+        name="codigoProduto"
+        required
+        class="border rounded-md px-3 py-2 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <label class="text-gray-700 dark:text-gray-300 font-medium">Quantidade</label>
+      <input
+        type="number"
+        [(ngModel)]="quantidade"
+        name="quantidade"
+        required
+        class="border rounded-md px-3 py-2 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    <button
+      type="button"
+      (click)="adicionarItem()"
+      class="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-md transition-colors"
+    >
+      ➕ Adicionar Produto
+    </button>
+  </div>
+
+  <!-- LISTA DE ITENS ADICIONADOS -->
+  <div *ngIf="itens.length > 0" class="mt-6">
+    <h3 class="text-lg font-semibold mb-2 dark:text-white">Itens da Nota:</h3>
+
+    <ul class="space-y-2">
+      <li *ngFor="let item of itens; let i = index"
+          class="flex justify-between items-center bg-gray-100 dark:bg-gray-700 p-3 rounded-md">
+        <span class="dark:text-white">
+          <b>{{ item.codigoProduto }}</b> — {{ item.quantidade }} unidade(s)
+        </span>
+        <button
+          class="text-red-600 font-semibold hover:underline"
+          (click)="removerItem(i)"
+        >
+          Remover
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- BOTÃO FINAL -->
+  <button
+    (click)="salvar()"
+    class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md transition-colors disabled:opacity-50"
+    [disabled]="itens.length === 0"
+  >
+    ✅ Criar Nota Fiscal
+  </button>
+
+</div>

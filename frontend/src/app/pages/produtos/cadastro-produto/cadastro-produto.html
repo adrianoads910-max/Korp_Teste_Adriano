@@ -1,1 +1,22 @@
-<p>cadastro-produto works!</p>
+<mat-card>
+  <h2>Cadastrar Produto</h2>
+
+  <form (ngSubmit)="salvar()">
+    <mat-form-field>
+      <mat-label>Código</mat-label>
+      <input matInput [(ngModel)]="produto.codigo" name="codigo" required>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Descrição</mat-label>
+      <input matInput [(ngModel)]="produto.descricao" name="descricao" required>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Saldo</mat-label>
+      <input matInput type="number" [(ngModel)]="produto.saldo" name="saldo" required>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary">Salvar</button>
+  </form>
+</mat-card>

@@ -1,1 +1,17 @@
-<p>cadastro-nota works!</p>
+<mat-card>
+  <h2>Nova Nota</h2>
+
+  <form (ngSubmit)="salvar()">
+    <mat-form-field>
+      <mat-label>Código do Produto</mat-label>
+      <input matInput [(ngModel)]="codigoProduto" name="codigoProduto" required>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Quantidade</mat-label>
+      <input type="number" matInput [(ngModel)]="quantidade" name="quantidade" required>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary">Criar Nota</button>
+  </form>
+</mat-card>

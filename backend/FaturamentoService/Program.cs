@@ -10,19 +10,14 @@ using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -------------------------------------------------------
-// ✅ CONFIGURAR BANCO SQLITE + EF CORE
-// -------------------------------------------------------
+// ✅ Configurar banco SQLite + EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConn")));
 
-// -------------------------------------------------------
-// ✅ CONFIGURAR IDENTITY COMPLETO (UserManager + SignInManager)
-// -------------------------------------------------------
+// ✅ Configurar Identity (senha simples permitida)
 builder.Services
     .AddIdentity<IdentityUser, IdentityRole>(options =>
     {
-        // ✅ Permitir senha simples sem regras rígidas
         options.Password.RequireDigit = false;
         options.Password.RequireLowercase = false;
         options.Password.RequireUppercase = false;
@@ -35,12 +30,10 @@ builder.Services
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
-// ✅ Injeta o repositório usando SQLite (não mais em memória)
+// ✅ Injeta o repositório usando SQLite
 builder.Services.AddScoped<NotasRepo>();
 
-// -------------------------------------------------------
-// ✅ CORS
-// -------------------------------------------------------
+// ✅ CORS liberado
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -49,12 +42,12 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// -------------------------------------------------------
-// ✅ HttpClient para EstoqueService com POLLY (Resiliência)
-// -------------------------------------------------------
+// ✅ HttpClient para EstoqueService com POLLY (resiliência)
 builder.Services.AddHttpClient("estoque", c =>
 {
-    c.BaseAddress = new Uri("http://localhost:5229/");
+    c.BaseAddress = new Uri(
+        Environment.GetEnvironmentVariable("ESTOQUE_URL") ?? "http://localhost:5229/"
+    );
 })
 .AddPolicyHandler(HttpPolicyExtensions
     .HandleTransientHttpError()
@@ -68,9 +61,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// -------------------------------------------------------
-// ✅ Executa migrations automaticamente
-// -------------------------------------------------------
+// ✅ Rodar migrations automaticamente no startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -84,9 +75,7 @@ app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// -------------------------------------------------------
-// ✅ ENDPOINT REGISTRO DE USUÁRIO
-// -------------------------------------------------------
+// ✅ Endpoint: Registrar usuário
 app.MapPost("/auth/register", async (
     [FromBody] RegisterRequest req,
     UserManager<IdentityUser> userManager) =>
@@ -100,9 +89,7 @@ app.MapPost("/auth/register", async (
     return Results.Ok(new { message = "Usuário criado com sucesso!" });
 });
 
-// -------------------------------------------------------
-// ✅ ENDPOINT LOGIN
-// -------------------------------------------------------
+// ✅ Endpoint: Login
 app.MapPost("/auth/login", async (
     [FromBody] LoginRequest req,
     SignInManager<IdentityUser> signInManager) =>
@@ -114,9 +101,7 @@ app.MapPost("/auth/login", async (
         : Results.BadRequest(new { error = "Credenciais inválidas" });
 });
 
-// -------------------------------------------------------
-// ✅ CRIAR NOTA
-// -------------------------------------------------------
+// ✅ Criar nota fiscal
 app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
 {
     if (nota.Itens == null || nota.Itens.Count == 0)
@@ -126,17 +111,13 @@ app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
     return Results.Created($"/notas/{criada.Numero}", criada);
 });
 
-// -------------------------------------------------------
-// ✅ LISTAR NOTAS
-// -------------------------------------------------------
+// ✅ Listar notas
 app.MapGet("/notas", (NotasRepo repo) =>
 {
     return Results.Ok(repo.Listar());
 });
 
-// -------------------------------------------------------
-// ✅ IMPRIMIR NOTA
-// -------------------------------------------------------
+// ✅ Imprimir nota (reserva estoque via EstoqueService)
 app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http, NotasRepo repo, IHttpClientFactory httpClientFactory) =>
 {
     var idempotencyKey = http.Request.Headers["Idempotency-Key"].FirstOrDefault();
@@ -145,7 +126,8 @@ app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http,
         return Results.Ok(new { mensagem = "Requisição já processada (idempotência)" });
 
     var nota = repo.Obter(numero);
-    if (nota is null) return Results.NotFound(new { erro = "Nota não encontrada" });
+    if (nota is null)
+        return Results.NotFound(new { erro = "Nota não encontrada" });
 
     if (nota.Status != StatusNota.Aberta)
         return Results.BadRequest(new { erro = "Somente notas em aberto podem ser impressas" });
@@ -171,9 +153,7 @@ app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http,
     return Results.Ok(new { mensagem = "Nota impressa e fechada", numero, status = nota.Status.ToString() });
 });
 
-// -------------------------------------------------------
-// ✅ CANCELAR NOTA
-// -------------------------------------------------------
+// ✅ Cancelar nota fiscal
 app.MapPost("/notas/{numero:int}/cancelar", (int numero, NotasRepo repo) =>
 {
     var nota = repo.Obter(numero);

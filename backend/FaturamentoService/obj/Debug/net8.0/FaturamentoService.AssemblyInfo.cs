@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FaturamentoService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+468794ee9c46a79b0221d0c6c46594cea3eaa9c9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f165c13f43efe633d3a0a889a6bcc878dfa3bc9")]
 [assembly: System.Reflection.AssemblyProductAttribute("FaturamentoService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FaturamentoService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

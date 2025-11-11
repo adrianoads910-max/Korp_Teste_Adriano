@@ -17,6 +17,8 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": "dist/frontend",            
+            "baseHref": "/Korp_Teste_Adriano/",       
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js"

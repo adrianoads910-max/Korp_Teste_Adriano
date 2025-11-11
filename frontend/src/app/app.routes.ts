@@ -1,10 +1,28 @@
 import { Routes } from '@angular/router';
-import { LayoutComponent } from './layout/layout';
+import { AuthGuard } from './guards/auth.guard';
+import { LayoutComponent } from './layout/layout'; 
 
 export const routes: Routes = [
+
+  // ✅ Rotas públicas (sem layout)
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/user/login/login')
+        .then(m => m.LoginComponent)
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./pages/user/register/register')
+        .then(m => m.RegisterComponent)
+  },
+
+  // ✅ Rotas protegidas (somente usuário logado)
   {
     path: '',
     component: LayoutComponent,
+    canActivate: [AuthGuard], // ⛔ Bloqueia se não estiver logado
     children: [
       {
         path: '',
@@ -36,5 +54,11 @@ export const routes: Routes = [
             .then(m => m.ListaNotasComponent)
       }
     ]
+  },
+
+  // ✅ fallback para qualquer rota inválida
+  {
+    path: '**',
+    redirectTo: 'login'
   }
 ];

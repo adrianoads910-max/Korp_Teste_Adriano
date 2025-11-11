@@ -1,42 +1,51 @@
 using FaturamentoService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaturamentoService.Data;
 
 public class NotasRepo
 {
-    private readonly object _lock = new();
-    private readonly Dictionary<int, NotaFiscal> _notas = new();
-    private int _sequencia = 0;
+    private readonly AppDbContext _db;
     private readonly HashSet<string> _idempotencia = new();
+
+    public NotasRepo(AppDbContext db)
+    {
+        _db = db;
+    }
 
     public NotaFiscal Criar(NotaFiscal nota)
     {
-        lock (_lock)
-        {
-            nota.Numero = ++_sequencia;
-            nota.Status = StatusNota.Aberta;  // ✅ garante status inicial
-            _notas[nota.Numero] = nota;
-            return nota;
-        }
+        nota.Status = StatusNota.Aberta; // garante status inicial
+        _db.Notas.Add(nota);
+        _db.SaveChanges();
+        return nota;
     }
 
-    public NotaFiscal? Obter(int numero) =>
-        _notas.TryGetValue(numero, out var n) ? n : null;
+    public NotaFiscal? Obter(int numero)
+    {
+        return _db.Notas
+            .Include(n => n.Itens)   // <--- essencial para retornar os itens
+            .FirstOrDefault(n => n.Numero == numero);
+    }
 
     public List<NotaFiscal> Listar()
     {
-        lock (_lock)
-        {
-            return _notas.Values.ToList();
-        }
+        return _db.Notas
+            .Include(n => n.Itens)   // <--- lista notas com itens
+            .ToList();
     }
 
-    public void Fechar(NotaFiscal nota) =>
+    public void Fechar(NotaFiscal nota)
+    {
         nota.Status = StatusNota.Fechada;
+        _db.SaveChanges();
+    }
 
-    public void Cancelar(NotaFiscal nota) =>
-    nota.Status = StatusNota.Cancelada;
-    
+    public void Cancelar(NotaFiscal nota)
+    {
+        nota.Status = StatusNota.Cancelado;
+        _db.SaveChanges();
+    }
 
     public bool JaProcessado(string chave) =>
         _idempotencia.Contains(chave);

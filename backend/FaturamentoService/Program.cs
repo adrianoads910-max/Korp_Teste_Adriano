@@ -1,15 +1,46 @@
 using System.Net;
 using FaturamentoService.Data;
 using FaturamentoService.Models;
+using FaturamentoService.Models.Auth;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Polly;
 using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Banco em memória
-builder.Services.AddSingleton<NotasRepo>();
+// -------------------------------------------------------
+// ✅ CONFIGURAR BANCO SQLITE + EF CORE
+// -------------------------------------------------------
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConn")));
 
-// ✅ Habilitar CORS
+// -------------------------------------------------------
+// ✅ CONFIGURAR IDENTITY COMPLETO (UserManager + SignInManager)
+// -------------------------------------------------------
+builder.Services
+    .AddIdentity<IdentityUser, IdentityRole>(options =>
+    {
+        // ✅ Permitir senha simples sem regras rígidas
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 3;
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
+// ✅ Injeta o repositório usando SQLite (não mais em memória)
+builder.Services.AddScoped<NotasRepo>();
+
+// -------------------------------------------------------
+// ✅ CORS
+// -------------------------------------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -18,10 +49,12 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// HttpClient para EstoqueService
+// -------------------------------------------------------
+// ✅ HttpClient para EstoqueService com POLLY (Resiliência)
+// -------------------------------------------------------
 builder.Services.AddHttpClient("estoque", c =>
 {
-    c.BaseAddress = new Uri("http://localhost:5229/"); // porta do EstoqueService
+    c.BaseAddress = new Uri("http://localhost:5229/");
 })
 .AddPolicyHandler(HttpPolicyExtensions
     .HandleTransientHttpError()
@@ -35,12 +68,55 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// -------------------------------------------------------
+// ✅ Executa migrations automaticamente
+// -------------------------------------------------------
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.UseSwagger();
 app.UseSwaggerUI();
-
-// ✅ aplicar CORS antes dos endpoints
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+// -------------------------------------------------------
+// ✅ ENDPOINT REGISTRO DE USUÁRIO
+// -------------------------------------------------------
+app.MapPost("/auth/register", async (
+    [FromBody] RegisterRequest req,
+    UserManager<IdentityUser> userManager) =>
+{
+    var user = new IdentityUser { UserName = req.Email, Email = req.Email };
+    var result = await userManager.CreateAsync(user, req.Senha);
+
+    if (!result.Succeeded)
+        return Results.BadRequest(result.Errors);
+
+    return Results.Ok(new { message = "Usuário criado com sucesso!" });
+});
+
+// -------------------------------------------------------
+// ✅ ENDPOINT LOGIN
+// -------------------------------------------------------
+app.MapPost("/auth/login", async (
+    [FromBody] LoginRequest req,
+    SignInManager<IdentityUser> signInManager) =>
+{
+    var result = await signInManager.PasswordSignInAsync(req.Email, req.Senha, false, false);
+
+    return result.Succeeded
+        ? Results.Ok(new { authenticated = true })
+        : Results.BadRequest(new { error = "Credenciais inválidas" });
+});
+
+// -------------------------------------------------------
+// ✅ CRIAR NOTA
+// -------------------------------------------------------
 app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
 {
     if (nota.Itens == null || nota.Itens.Count == 0)
@@ -50,12 +126,17 @@ app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
     return Results.Created($"/notas/{criada.Numero}", criada);
 });
 
-// ✅ Novo endpoint LISTAR notas
+// -------------------------------------------------------
+// ✅ LISTAR NOTAS
+// -------------------------------------------------------
 app.MapGet("/notas", (NotasRepo repo) =>
 {
     return Results.Ok(repo.Listar());
 });
 
+// -------------------------------------------------------
+// ✅ IMPRIMIR NOTA
+// -------------------------------------------------------
 app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http, NotasRepo repo, IHttpClientFactory httpClientFactory) =>
 {
     var idempotencyKey = http.Request.Headers["Idempotency-Key"].FirstOrDefault();
@@ -90,6 +171,9 @@ app.MapPost("/notas/{numero:int}/imprimir", async (int numero, HttpContext http,
     return Results.Ok(new { mensagem = "Nota impressa e fechada", numero, status = nota.Status.ToString() });
 });
 
+// -------------------------------------------------------
+// ✅ CANCELAR NOTA
+// -------------------------------------------------------
 app.MapPost("/notas/{numero:int}/cancelar", (int numero, NotasRepo repo) =>
 {
     var nota = repo.Obter(numero);
@@ -102,6 +186,5 @@ app.MapPost("/notas/{numero:int}/cancelar", (int numero, NotasRepo repo) =>
     repo.Cancelar(nota);
     return Results.Ok(new { mensagem = "Nota cancelada com sucesso", numero, status = nota.Status.ToString() });
 });
-
 
 app.Run();

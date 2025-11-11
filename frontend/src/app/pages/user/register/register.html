@@ -1,0 +1,27 @@
+<div class="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="bg-white dark:bg-gray-800 p-10 rounded-xl shadow-lg w-96">
+
+    <h2 class="text-2xl font-bold text-center mb-6 dark:text-white">Criar Conta</h2>
+
+    <form (ngSubmit)="registrar()">
+
+      <label class="block mb-2 text-gray-700 dark:text-gray-200">Email</label>
+      <input type="email" [(ngModel)]="email" name="email"
+             class="w-full p-2 mb-4 rounded border dark:bg-gray-900 dark:text-white" required />
+
+      <label class="block mb-2 text-gray-700 dark:text-gray-200">Senha</label>
+      <input type="password" [(ngModel)]="senha" name="senha"
+             class="w-full p-2 mb-6 rounded border dark:bg-gray-900 dark:text-white" required />
+
+      <button type="submit"
+              class="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition">
+        Registrar
+      </button>
+    </form>
+
+    <p class="text-center text-sm mt-4 dark:text-gray-300">
+      Já possui conta?
+      <a class="text-blue-600 hover:underline" routerLink="/login">Entrar</a>
+    </p>
+  </div>
+</div>

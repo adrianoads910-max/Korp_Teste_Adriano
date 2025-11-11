@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { NotasService } from '../../../services/notas';
 import { NotaFiscal, StatusNota } from '../../../models/nota-fiscal';
 
+
 @Component({
   selector: 'app-lista-notas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ],
   templateUrl: './lista-notas.html'
 })
 export class ListaNotasComponent implements OnInit {

@@ -46,15 +46,27 @@
       </a>
     </nav>
 
-    <!-- Toggle tema -->
-    <div class="mt-auto">
+    <!-- Toggle tema + Logout -->
+    <div class="mt-auto flex flex-col gap-3">
+
+      <!-- Botão alternar tema -->
       <button (click)="toggleDarkMode()"
-              class="btn-dark w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-50 py-2 rounded-md flex items-center justify-center gap-2 hover:bg-gray-300 dark:hover:bg-gray-600">
+              class="w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-50
+                    py-2 rounded-md flex items-center justify-center gap-2
+                    hover:bg-gray-300 dark:hover:bg-gray-600">
         <ng-icon name="heroMoon" *ngIf="!dark" class="h-5 w-5"></ng-icon>
         <ng-icon name="heroSun" *ngIf="dark" class="h-5 w-5"></ng-icon>
         Alternar Tema
       </button>
+
+      <!-- Botão logout -->
+      <button (click)="logout()"
+              class="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition">
+        Logout
+      </button>
+
     </div>
+
   </aside>
 
   <!-- CONTEÚDO PRINCIPAL -->

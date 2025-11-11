@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 
 // 📌 ÍCONES HEROICONS
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
@@ -8,8 +8,10 @@ import {
   heroCube,
   heroClipboardDocument,
   heroMoon,
-  heroSun
+  heroSun,
 } from '@ng-icons/heroicons/outline';
+
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -27,15 +29,30 @@ import {
       heroCube,
       heroClipboardDocument,
       heroMoon,
-      heroSun
+      heroSun,
     })
   ]
 })
 export class LayoutComponent {
   dark = false;
+  usuarioLogado: string | null = null;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.usuarioLogado = localStorage.getItem('email');
+  }
 
   toggleDarkMode() {
     this.dark = !this.dark;
     document.documentElement.classList.toggle('dark', this.dark);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

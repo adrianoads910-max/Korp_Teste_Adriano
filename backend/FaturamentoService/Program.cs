@@ -17,7 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConn")));
 
 // -----------------------------
-// IDENTITY (senha simples)
+// IDENTITY
 // -----------------------------
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
@@ -34,7 +34,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 // -----------------------------
-// CORS (necessário para Angular no GitHub Pages)
+// CORS (libera tudo)
 // -----------------------------
 builder.Services.AddCors(opt =>
 {
@@ -45,7 +45,7 @@ builder.Services.AddCors(opt =>
 });
 
 // -----------------------------
-// ESTOQUESERVICE HTTPCLIENT
+// HTTPCLIENT (Estoqueservice)
 // -----------------------------
 var estoqueUrl =
     Environment.GetEnvironmentVariable("ESTOQUE_URL")
@@ -66,12 +66,11 @@ builder.Services.AddHttpClient("estoque", c =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// -----------------------------
-// BUILD APP
-// -----------------------------
 var app = builder.Build();
 
-// Rodar migrations
+// -----------------------------
+// MIGRATIONS
+// -----------------------------
 using (var scope = app.Services.CreateScope())
 {
     scope.ServiceProvider.GetRequiredService<AppDbContext>()
@@ -83,7 +82,6 @@ app.UseSwaggerUI();
 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -92,7 +90,7 @@ app.UseAuthorization();
 // -----------------------------
 app.MapPost("/auth/register", async (
     [FromBody] RegisterRequest req,
-    UserManager<IdentityUser> userManager) =>
+    [FromServices] UserManager<IdentityUser> userManager) =>
 {
     var user = new IdentityUser { UserName = req.Email, Email = req.Email };
     var result = await userManager.CreateAsync(user, req.Senha);
@@ -104,7 +102,7 @@ app.MapPost("/auth/register", async (
 
 app.MapPost("/auth/login", async (
     [FromBody] LoginRequest req,
-    SignInManager<IdentityUser> signInManager) =>
+    [FromServices] SignInManager<IdentityUser> signInManager) =>
 {
     var result = await signInManager.PasswordSignInAsync(req.Email, req.Senha, false, false);
 
@@ -116,7 +114,9 @@ app.MapPost("/auth/login", async (
 // -----------------------------
 // NOTAS
 // -----------------------------
-app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
+app.MapPost("/notas", (
+    [FromServices] NotasRepo repo,
+    [FromBody] NotaFiscal nota) =>
 {
     if (nota.Itens == null || nota.Itens.Count == 0)
         return Results.BadRequest(new { erro = "Nota deve conter itens" });
@@ -125,13 +125,16 @@ app.MapPost("/notas", (NotasRepo repo, NotaFiscal nota) =>
     return Results.Created($"/notas/{criada.Numero}", criada);
 });
 
-app.MapGet("/notas", (NotasRepo repo) => Results.Ok(repo.Listar()));
+app.MapGet("/notas", ([FromServices] NotasRepo repo) =>
+{
+    return Results.Ok(repo.Listar());
+});
 
 app.MapPost("/notas/{numero:int}/imprimir", async (
     int numero,
     HttpContext http,
-    NotasRepo repo,
-    IHttpClientFactory httpFactory) =>
+    [FromServices] NotasRepo repo,
+    [FromServices] IHttpClientFactory httpFactory) =>
 {
     var nota = repo.Obter(numero);
     if (nota is null)
@@ -157,7 +160,9 @@ app.MapPost("/notas/{numero:int}/imprimir", async (
     return Results.Ok(new { mensagem = "Nota fechada", numero, status = nota.Status.ToString() });
 });
 
-app.MapPost("/notas/{numero:int}/cancelar", (int numero, NotasRepo repo) =>
+app.MapPost("/notas/{numero:int}/cancelar", (
+    int numero,
+    [FromServices] NotasRepo repo) =>
 {
     var nota = repo.Obter(numero);
     if (nota is null)

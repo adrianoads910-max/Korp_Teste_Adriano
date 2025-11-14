@@ -34,7 +34,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 // -----------------------------
-// CORS CORRETO
+// CORS (libera tudo)
 // -----------------------------
 builder.Services.AddCors(opt =>
 {
@@ -45,7 +45,7 @@ builder.Services.AddCors(opt =>
 });
 
 // -----------------------------
-// HTTP CLIENT ESTOQUESERVICE
+// HTTPCLIENT (Estoqueservice)
 // -----------------------------
 var estoqueUrl =
     Environment.GetEnvironmentVariable("ESTOQUE_URL")
@@ -82,15 +82,34 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-// --------------------------------------------------------------
-// *** ESSENCIAL: Ordem correta do pipeline ***
-// --------------------------------------------------------------
+// ---------------------------------------------------------
+// 🔥 MIDDLEWARE DE CORS MANUAL - NECESSÁRIO NO RAILWAY
+// ---------------------------------------------------------
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+    context.Response.Headers["Access-Control-Allow-Headers"] = "*";
+    context.Response.Headers["Access-Control-Allow-Methods"] = "*";
+
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        await context.Response.CompleteAsync();
+        return;
+    }
+
+    await next();
+});
+
+// ---------------------------------------------------------
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
-// --------------------------------------------------------------
 
+// -----------------------------
+// AUTH
+// -----------------------------
 app.MapPost("/auth/register", async (
     [FromBody] RegisterRequest req,
     [FromServices] UserManager<IdentityUser> userManager) =>

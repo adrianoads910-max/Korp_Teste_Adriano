@@ -1,6 +1,9 @@
-@EstoqueService_HostAddress = http://localhost:5229
+@EstoqueService_HostAddress = https://estoqueservice-production.up.railway.app
 
-GET {{EstoqueService_HostAddress}}/weatherforecast/
+### TESTAR LISTA DE PRODUTOS
+GET {{EstoqueService_HostAddress}}/produtos
 Accept: application/json
 
-###
+### TESTAR RESERVA DE PRODUTO
+POST {{EstoqueService_HostAddress}}/produtos/100/reservar?quantidade=1
+Accept: application/json

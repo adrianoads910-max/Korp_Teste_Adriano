@@ -1,6 +1,23 @@
-@FaturamentoService_HostAddress = http://localhost:5208
+@FaturamentoService_HostAddress = https://faturamentoservice-production.up.railway.app
 
-GET {{FaturamentoService_HostAddress}}/weatherforecast/
-Accept: application/json
+### TESTAR API DE AUTENTICAÇÃO
+POST {{FaturamentoService_HostAddress}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "teste@teste.com",
+  "senha": "123"
+}
 
 ###
+POST {{FaturamentoService_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "teste@teste.com",
+  "senha": "123"
+}
+
+### TESTAR API DE NOTAS
+GET {{FaturamentoService_HostAddress}}/notas
+Accept: application/json

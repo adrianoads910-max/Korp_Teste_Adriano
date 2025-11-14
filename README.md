@@ -11,9 +11,9 @@ Sistema de faturamento desenvolvido para gerenciamento financeiro, com autentica
 - SQLite
 
 ### Frontend
-- React / Typescript (ou colocar aqui a sua tecnologia real)
-- Axios
-- Styled Components / Tailwind (se aplicável)
+- Angular 15+ / Typescript
+- Tailwind CSS
+- Angular HttpClient
 
 ---
 
@@ -45,12 +45,12 @@ dotnet ef database update
 dotnet run
 ````
 
-### ✅ Frontend (React)
+### ✅ Frontend (Angular)
 
 ```sh
 cd frontend
 npm install
-npm start
+ng serve
 ```
 
 Após iniciar, abra no navegador:

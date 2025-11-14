@@ -3,7 +3,7 @@ using EstoqueService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ✅ CORS liberado para comunicação entre serviços e frontend
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -12,7 +12,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// ✅ Banco em memória (mock)
+// Banco em memória
 builder.Services.AddSingleton<ProdutoRepo>();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -23,31 +23,36 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// ✅ Aplicar CORS antes dos endpoints
-app.UseCors("AllowAll");
+app.UseHttpsRedirection();
 
-// ✅ Criar produto
+// -----------------------------
+// ORDEM CORRETA
+// -----------------------------
+app.UseRouting();
+app.UseCors("AllowAll");
+// -----------------------------
+
+// Criar produto
 app.MapPost("/produtos", (ProdutoRepo repo, Produto produto) =>
 {
     repo.Criar(produto);
     return Results.Created($"/produtos/{produto.Codigo}", produto);
 });
 
-// ✅ Listar produtos
+// Listar produtos
 app.MapGet("/produtos", (ProdutoRepo repo) =>
 {
-    var lista = repo.Listar();
-    return Results.Ok(lista);
+    return Results.Ok(repo.Listar());
 });
 
-// ✅ Buscar produto pelo código
+// Buscar produto
 app.MapGet("/produtos/{codigo}", (ProdutoRepo repo, string codigo) =>
 {
     var produto = repo.Obter(codigo);
     return produto is null ? Results.NotFound() : Results.Ok(produto);
 });
 
-// ✅ Reservar estoque (usado pelo FaturamentoService)
+// Reservar estoque
 app.MapPost("/produtos/{codigo}/reservar", (ProdutoRepo repo, string codigo, int quantidade) =>
 {
     var reservado = repo.Reservar(codigo, quantidade);

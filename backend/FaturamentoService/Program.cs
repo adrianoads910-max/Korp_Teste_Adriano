@@ -34,7 +34,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
 // -----------------------------
-// CORS (libera tudo)
+// CORS CORRETO
 // -----------------------------
 builder.Services.AddCors(opt =>
 {
@@ -45,7 +45,7 @@ builder.Services.AddCors(opt =>
 });
 
 // -----------------------------
-// HTTPCLIENT (Estoqueservice)
+// HTTP CLIENT ESTOQUESERVICE
 // -----------------------------
 var estoqueUrl =
     Environment.GetEnvironmentVariable("ESTOQUE_URL")
@@ -80,14 +80,17 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseCors("AllowAll");
 app.UseHttpsRedirection();
+
+// --------------------------------------------------------------
+// *** ESSENCIAL: Ordem correta do pipeline ***
+// --------------------------------------------------------------
+app.UseRouting();
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
+// --------------------------------------------------------------
 
-// -----------------------------
-// AUTH
-// -----------------------------
 app.MapPost("/auth/register", async (
     [FromBody] RegisterRequest req,
     [FromServices] UserManager<IdentityUser> userManager) =>

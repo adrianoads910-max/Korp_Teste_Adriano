@@ -10,15 +10,11 @@ using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -----------------------------
 // DATABASE
-// -----------------------------
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("SqliteConn")));
 
-// -----------------------------
 // IDENTITY
-// -----------------------------
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = false;
@@ -33,20 +29,16 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
-// -----------------------------
-// CORS (libera tudo)
-// -----------------------------
-builder.Services.AddCors(opt =>
+// CORS
+builder.Services.AddCors(options =>
 {
-    opt.AddPolicy("AllowAll", p =>
+    options.AddPolicy("AllowAll", p =>
         p.AllowAnyOrigin()
          .AllowAnyHeader()
          .AllowAnyMethod());
 });
 
-// -----------------------------
-// HTTPCLIENT (Estoqueservice)
-// -----------------------------
+// HTTPCLIENT
 var estoqueUrl =
     Environment.GetEnvironmentVariable("ESTOQUE_URL")
     ?? builder.Configuration["EstoqueService"]
@@ -56,11 +48,9 @@ builder.Services.AddHttpClient("estoque", c =>
 {
     c.BaseAddress = new Uri(estoqueUrl);
 })
-.AddPolicyHandler(HttpPolicyExtensions
-    .HandleTransientHttpError()
-    .WaitAndRetryAsync(3, retry => TimeSpan.FromMilliseconds(200 * (retry + 1))))
-.AddPolicyHandler(HttpPolicyExtensions
-    .HandleTransientHttpError()
+.AddPolicyHandler(HttpPolicyExtensions.HandleTransientHttpError()
+    .WaitAndRetryAsync(3, t => TimeSpan.FromMilliseconds(200 * (t + 1))))
+.AddPolicyHandler(HttpPolicyExtensions.HandleTransientHttpError()
     .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
 
 builder.Services.AddEndpointsApiExplorer();
@@ -68,23 +58,17 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// -----------------------------
 // MIGRATIONS
-// -----------------------------
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<AppDbContext>()
-        .Database.Migrate();
+    scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
 }
 
+// Swagger
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
-
-// ---------------------------------------------------------
-// 🔥 MIDDLEWARE DE CORS MANUAL - NECESSÁRIO NO RAILWAY
-// ---------------------------------------------------------
+// ❗ Railway + GitHub Pages CORS fix
 app.Use(async (context, next) =>
 {
     context.Response.Headers["Access-Control-Allow-Origin"] = "*";
@@ -101,15 +85,15 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// ---------------------------------------------------------
+// ❗ IMPORTANTÍSSIMO: NÃO usar HTTPS redirection no Railway
+// app.UseHttpsRedirection();  --> REMOVIDO pois quebra CORS
+
 app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// -----------------------------
 // AUTH
-// -----------------------------
 app.MapPost("/auth/register", async (
     [FromBody] RegisterRequest req,
     [FromServices] UserManager<IdentityUser> userManager) =>
@@ -133,9 +117,7 @@ app.MapPost("/auth/login", async (
         : Results.BadRequest(new { error = "Credenciais inválidas" });
 });
 
-// -----------------------------
 // NOTAS
-// -----------------------------
 app.MapPost("/notas", (
     [FromServices] NotasRepo repo,
     [FromBody] NotaFiscal nota) =>
